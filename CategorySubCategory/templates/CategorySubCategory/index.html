@@ -1,0 +1,152 @@
+{% load sorting_tags %}
+{% load static %}
+<html> 
+    <head>
+            <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    </head>  
+    <style>
+        #mytable{
+            border: solid black 1px;
+            border-collapse:collapse;
+        }
+        .border1{
+            border: solid black 1px;
+            border-collapse:collapse;
+        }
+    </style> 
+<body>
+    <form id="productTable">
+        {% csrf_token %}
+        <INPUT type="button" id="add" value="Add" onclick="addRow('myTable')" />
+        {% if product %}
+        {% autosort product %}
+        <table id="myTable">
+                <tr>
+                    <th class="border1"></th>
+                    <th class="border1">{% anchor name "Product" %}</th>
+                    <th class="border1">{% anchor subcategory.name "Subcategory" %}</th>
+                    <th class="border1">{% anchor category.name "Category" %}</th>
+                </tr>
+        {% for question in product %}
+            <tr>
+                <td class="border1"><input type="checkbox"/></td>
+                <td class="border1">{{question.name}}</td>
+                <td class="border1">{{question.subcategory.name}}</td>
+                <td class="border1">{{question.category.name}}</td>
+            </tr>
+        {% endfor %}
+        <tr style="display: none">
+            <td>
+                <select id="myDropdown" class="dropdown-content">
+                    <option value="" disabled selected>Select Subcategory</option>
+                    <option value="Laptop">Laptop</option>
+                    <option value="Mobile">Mobile</option>
+                    <option value="Tennis">Tennis</option>
+                    <option value="Cricket">Cricket</option>
+            </select>
+            </td>
+            <td>
+                <select id="myDropdown1" class="dropdownCat">
+                    <option value="" disabled selected>Select Category</option>
+                    <option value="Electronics">Electronics</option>
+                    <option value="Sports">Sports</option>
+                </select>
+            </td>
+        </tr>
+        </table>
+    </form>
+    {% else %}
+        <form id="productTable">
+            {% csrf_token %}
+            <INPUT type="button" id="add" value="Add" onclick="addRow('myTable')" />
+            {% autosort product %}
+            <table style="border: solid black 2px" id="myTable">
+                    <tr>
+                        <td></td>
+                        <td>{% anchor name "Product" %}</td>
+                        <td>{% anchor subcategory.name "Subcategory" %}</td>
+                        <td>{% anchor category.name "Category" %}</td>
+                    </tr>
+            </table>
+        </form>
+    {% endif %}
+</body>
+<!--<script src="{% static 'CategorySubCategory/js/jquery-1.12.4.min.js' %}"></script>-->
+
+<script type="text/javascript">
+    function addRow(tableID) {
+    document.getElementById('add').style.display="None";
+    var table = document.getElementById(tableID);
+
+    var rowCount = table.rows.length;
+    var row = table.insertRow(rowCount);
+
+    var cell1 = row.insertCell(0);
+    /*var element1 = document.createElement("a");
+    element1.href=""
+    element1.innerHTML="Save"
+    cell1.appendChild(element1);*/
+    var element1 = document.createElement("input");
+    element1.type="submit";
+    element1.value="Save";
+    cell1.appendChild(element1);
+
+    var cell2 = row.insertCell(1);
+    var element3 = document.createElement("input");
+    element3.type = "text";
+    element3.name = "txtbox[]";
+    element3.id="product"
+    cell2.appendChild(element3);
+
+    var cell3 = row.insertCell(2);
+    var element2 = document.getElementById("myDropdown");
+    cell3.appendChild(element2);
+
+    var cell4 = row.insertCell(3);
+    var element4 = document.getElementById("myDropdown1");
+    cell4.appendChild(element4);
+    }
+
+    $(document).on('submit','#productTable',function(e){
+        e.preventDefault();
+
+        $.ajax({
+            type:'POST',
+            url:'/add/',
+            data:{
+                product:$('#product').val(),
+                subcategory:$('#myDropdown').val(),
+                category:$('#myDropdown1').val(),
+                csrfmiddlewaretoken:$('input[name=csrfmiddlewaretoken]').val()
+            },
+            success:function(){
+                alert("Yayy!!");
+            }
+        })
+    })
+
+    window.onclick = function(event) {
+        if (!event.target.matches('.dropbtn')) {
+
+            var dropdowns = document.getElementsByClassName("dropdown-content");
+            var i;
+            for (i = 0; i < dropdowns.length; i++) {
+            var openDropdown = dropdowns[i];
+            if (openDropdown.classList.contains('show')) {
+                openDropdown.classList.remove('show');
+            }
+            }
+
+            var dropdowns1 = document.getElementsByClassName("dropdownCat");
+            var i;
+            for (i = 0; i < dropdowns1.length; i++) {
+            var openDropdown = dropdowns1[i];
+            if (openDropdown.classList.contains('show')) {
+                openDropdown.classList.remove('show');
+            }
+            }
+        }
+    }
+</script>
+</html>
